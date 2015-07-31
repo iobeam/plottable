@@ -4195,14 +4195,18 @@ var Plottable;
                     var visibility = d3.select(this).style("visibility");
                     return visibility === "visible" || visibility === "inherit";
                 });
+
                 var lastLabelClientRect;
                 visibleTickLabels.each(function (d, i) {
                     var clientRect = this.getBoundingClientRect();
                     var tickLabel = d3.select(this);
                     var leadingTickMark = visibleTickMarkRects[i];
                     var trailingTickMark = visibleTickMarkRects[i + 1];
-                    if (!isInsideBBox(clientRect) || (lastLabelClientRect != null && Plottable.Utils.DOM.clientRectsOverlap(clientRect, lastLabelClientRect))
+                    if (typeof trailingTickMark === "undefined") {
+                        tickLabel.style("visibility", "hidden");
+                    } else if (!isInsideBBox(clientRect) || (lastLabelClientRect != null && Plottable.Utils.DOM.clientRectsOverlap(clientRect, lastLabelClientRect))
                         || (leadingTickMark.right > clientRect.left || trailingTickMark.left < clientRect.right)) {
+
                         tickLabel.style("visibility", "hidden");
                     }
                     else {
