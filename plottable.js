@@ -1,5 +1,5 @@
 /*!
-Plottable 1.5.0 (https://github.com/palantir/plottable)
+Plottable 1.5.2 (https://github.com/palantir/plottable)
 Copyright 2014-2015 Palantir Technologies
 Licensed under MIT (https://github.com/palantir/plottable/blob/master/LICENSE)
 */
@@ -900,7 +900,7 @@ var Plottable;
 ///<reference path="../reference.ts" />
 var Plottable;
 (function (Plottable) {
-    Plottable.version = "1.5.0";
+    Plottable.version = "1.5.2";
 })(Plottable || (Plottable = {}));
 
 ///<reference path="../reference.ts" />
@@ -6118,8 +6118,12 @@ var Plottable;
             };
             SelectionBoxLayer.prototype.destroy = function () {
                 _super.prototype.destroy.call(this);
-                this.xScale().offUpdate(this._adjustBoundsCallback);
-                this.yScale().offUpdate(this._adjustBoundsCallback);
+                if (this._xScale != null) {
+                    this.xScale().offUpdate(this._adjustBoundsCallback);
+                }
+                if (this._yScale != null) {
+                    this.yScale().offUpdate(this._adjustBoundsCallback);
+                }
             };
             return SelectionBoxLayer;
         })(Plottable.Component);
