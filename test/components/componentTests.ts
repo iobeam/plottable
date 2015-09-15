@@ -340,6 +340,14 @@ describe("Component behavior", () => {
     svg.remove();
   });
 
+  it("background-fill's pointer-event is set to none", () => {
+    c.renderTo(svg);
+    let backgroundFill = c.background().select(".background-fill").node();
+    let pointerEvent = window.getComputedStyle(<Element>backgroundFill).pointerEvents;
+    assert.strictEqual(pointerEvent, "none", "background-fill's pointer-event is set to none");
+    svg.remove();
+  });
+
   it("can't reuse component if it's been destroy()-ed", () => {
     let c1 = new Plottable.Component();
     c1.renderTo(svg);
@@ -442,6 +450,25 @@ describe("Component behavior", () => {
 
     svg1.remove();
     svg2.remove();
+    svg.remove();
+  });
+
+  it("renderTo() only accepts strings, selections containing svgs, and SVG elements", () => {
+    svg.attr("id", "render-to-test");
+    assert.doesNotThrow(() => c.renderTo("#render-to-test"), Error, "accepts strings that identify svgs");
+    assert.doesNotThrow(() => c.renderTo(svg), Error, "accepts selections that contain svgs");
+    assert.doesNotThrow(() => c.renderTo(document.getElementById("render-to-test")), Error, "accepts svg elements");
+    let parent = TestMethods.getSVGParent();
+    let div = parent.append("div");
+    // HACKHACK #2614: chai-assert.d.ts has the wrong signature
+    (<any> assert).throws(() => c.renderTo(div), Error,
+      "Plottable requires a valid SVG to renderTo", "rejects selections that don't contain svgs");
+    (<any> assert).throws(() => c.renderTo(<Element> div.node()), Error,
+      "Plottable requires a valid SVG to renderTo", "rejects DOM nodes that are not svgs");
+    (<any> assert).throws(() => c.renderTo("#not-a-element"), Error,
+      "Plottable requires a valid SVG to renderTo", "rejects strings that don't correspond to DOM elements");
+    (<any> assert).throws(() => c.renderTo(d3.select(null)), Error,
+      "Plottable requires a valid SVG to renderTo", "rejects empty d3 selections");
     svg.remove();
   });
 
