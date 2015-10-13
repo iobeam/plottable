@@ -252,6 +252,16 @@ describe("Plots", () => {
             svg.remove();
           });
 
+          it("entities().position returns the position of data point", () => {
+            let entities = barPlot.entities();
+            entities.forEach((entity) => {
+              let dataX = barPlot.x().scale.scale(entity.datum.x);
+              let dataY = barPlot.y().scale.scale(entity.datum.y);
+              assert.strictEqual(dataX, entity.position.x, "entities().position.x should equal to scaled x value");
+              assert.strictEqual(dataY, entity.position.y, "entities().position.y should equal to scaled y value");
+            });
+            svg.remove();
+          });
         });
 
       });
@@ -1201,6 +1211,48 @@ describe("Plots", () => {
       assert.deepEqual(yScale.domain(), [-7, 7], "domain has not been adjusted to visible points");
       plot.autorangeMode("y");
       assert.deepEqual(yScale.domain(), [-2.5, 2.5], "domain has been adjusted to visible points");
+      svg.remove();
+    });
+
+    it("updates the scale extent correctly when there is one bar (vertical)", () => {
+      let svg = TestMethods.generateSVG();
+
+      let xScale = new Plottable.Scales.Linear();
+      let yScale = new Plottable.Scales.Linear();
+      let xPoint = Math.max(xScale.domain()[0], xScale.domain()[1]) + 10;
+      let data = [{x: xPoint, y: 10}];
+      let dataset = new Plottable.Dataset(data);
+
+      let barPlot = new Plottable.Plots.Bar();
+      barPlot.datasets([dataset]);
+      barPlot.x(function(d) { return d.x; }, xScale);
+      barPlot.y(function(d) { return d.y; }, yScale);
+
+      barPlot.renderTo(svg);
+      let xScaleDomain = xScale.domain();
+      assert.operator(xPoint, ">=", xScaleDomain[0], "x value greater than new domain min");
+      assert.operator(xPoint, "<=", xScaleDomain[1], "x value less than new domain max");
+      svg.remove();
+    });
+
+    it("updates the scale extent correctly when there is one bar (horizontal)", () => {
+      let svg = TestMethods.generateSVG();
+
+      let xScale = new Plottable.Scales.Linear();
+      let yScale = new Plottable.Scales.Linear();
+      let yPoint = Math.max(yScale.domain()[0], yScale.domain()[1]) + 10;
+      let data = [{x: 10, y: yPoint}];
+      let dataset = new Plottable.Dataset(data);
+
+      let barPlot = new Plottable.Plots.Bar(Plottable.Plots.Bar.ORIENTATION_HORIZONTAL);
+      barPlot.datasets([dataset]);
+      barPlot.x(function(d) { return d.x; }, xScale);
+      barPlot.y(function(d) { return d.y; }, yScale);
+
+      barPlot.renderTo(svg);
+      let yScaleDomain = yScale.domain();
+      assert.operator(yPoint, ">=", yScaleDomain[0], "y value greater than new domain min");
+      assert.operator(yPoint, "<=", yScaleDomain[1], "y value less than new domain max");
       svg.remove();
     });
   });

@@ -392,9 +392,16 @@ export module Axes {
       let tickLabelsEnter = tickLabels.enter().append("g").classed(Axis.TICK_LABEL_CLASS, true);
       tickLabelsEnter.append("text");
       let xTranslate = (this._tierLabelPositions[index] === "center" || config.step === 1) ? 0 : this.tickLabelPadding();
-      let yTranslate = this.orientation() === "bottom" ?
-          d3.sum(this._tierHeights.slice(0, index + 1)) - this.tickLabelPadding() :
-          this.height() - d3.sum(this._tierHeights.slice(0, index)) - this.tickLabelPadding();
+      let yTranslate: number;
+      if (this.orientation() === "bottom") {
+        yTranslate = d3.sum(this._tierHeights.slice(0, index + 1)) - this.tickLabelPadding();
+      } else {
+        if (this._tierLabelPositions[index] === "center") {
+          yTranslate = this.height() - d3.sum(this._tierHeights.slice(0, index)) - this.tickLabelPadding() - this._maxLabelTickLength();
+        } else {
+          yTranslate = this.height() - d3.sum(this._tierHeights.slice(0, index)) - this.tickLabelPadding();
+        }
+      }
 
       let textSelection = tickLabels.selectAll("text");
       if (textSelection.size() > 0) {
@@ -422,12 +429,14 @@ export module Axes {
       tickMarks.attr(attr);
       if (this.orientation() === "bottom") {
         attr["y1"] = offset;
-        attr["y2"] = offset + this._tierHeights[index];
+        attr["y2"] = offset + (this._tierLabelPositions[index] === "center" ? this.endTickLength() : this._tierHeights[index]);
       } else {
         attr["y1"] = this.height() - offset;
-        attr["y2"] = this.height() - (offset + this._tierHeights[index]);
+        attr["y2"] = this.height() - (offset + (this._tierLabelPositions[index] === "center" ?
+                                                  this.endTickLength() : this._tierHeights[index]));
       }
       d3.select(tickMarks[0][0]).attr(attr);
+      d3.select(tickMarks[0][tickMarks.size() - 1]).attr(attr);
 
       // Add end-tick classes to first and last tick for CSS customization purposes
       d3.select(tickMarks[0][0]).classed(Axis.END_TICK_MARK_CLASS, true);
