@@ -1,8 +1,4 @@
-///<reference path="../reference.ts" />
-
-module Plottable {
-
-export module Plots {
+module Plottable.Plots {
   export interface PlotEntity extends Entity<Plot> {
     dataset: Dataset;
     index: number;
@@ -20,6 +16,7 @@ export module Plots {
   }
 }
 
+module Plottable {
 /**
  * Computing the selection of an entity is an expensive operation. This object aims to
  * reproduce the behavior of the Plots.PlotEntity, excluding the selection, but including
@@ -546,6 +543,9 @@ export class Plot extends Component {
         closestPointEntity = entity;
       }
     });
+    if (closestPointEntity === undefined) {
+      return undefined;
+    }
 
     return this._lightweightPlotEntityToPlotEntity(closestPointEntity);
   }
